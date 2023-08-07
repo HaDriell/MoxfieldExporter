@@ -3,4 +3,4 @@
 
 # JSON
 add_subdirectory(JSON)
-
+add_subdirectory(libcpr)
