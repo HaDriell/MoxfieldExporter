@@ -5,10 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Unit Tests",
+            "name": "Debug",
             "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/Build/src/MoxfieldExporter.exe",
+            "args": ["HaDriel", "-o", "decks"],
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal"
         }
