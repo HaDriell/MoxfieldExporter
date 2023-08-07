@@ -3,4 +3,6 @@
 
 # JSON
 add_subdirectory(JSON)
+
+# CPR (curl wrapper for C++)
 add_subdirectory(cpr)
