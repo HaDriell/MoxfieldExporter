@@ -1,6 +1,6 @@
 [submodule "extern/JSON"]
 	path = extern/JSON
 	url = https://github.com/nlohmann/json.git
-[submodule "HTTPRequest"]
+[submodule "extern/HTTPRequest"]
 	path = extern/HTTPRequest
 	url = https://github.com/elnormous/HTTPRequest.git
