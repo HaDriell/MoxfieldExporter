@@ -1,6 +1,8 @@
 #include "Main.h"
 
+#include <cstdint>
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 #include "cpr/cpr.h"
@@ -92,27 +94,29 @@ int main(int argc, char** argv)
 
 bool FetchUserDecklistFromMoxfield(const std::string& username, std::map<std::string, std::string>& decks)
 {
-    //TODO : There is a paging system. make as many calls as required to fetch each page instead of this default page 1 fetch
-    std::string url = "https://api2.moxfield.com/v2/users/" + username + "/decks";
-    cpr::Response response = cpr::Get(cpr::Url(url));
-
-    if (response.status_code != 200)
+    uint32_t pageNumber = 1;
+    uint32_t totalPages = 1;
+    for (; pageNumber <= totalPages; pageNumber++)
     {
-        std::cerr << "Failed to fetch Deck list from Moxfield : " << response.reason << std::endl;
-        return false;
-    }
+        std::string url = "https://api2.moxfield.com/v2/users/" + username + "/decks?pageNumber=" + std::to_string(pageNumber);
+        cpr::Response response = cpr::Get(cpr::Url(url));
 
-    json decksData = json::parse(response.text);
-    if (!decksData.is_object())
-    {
-        return false;
-    }
+        if (response.status_code != 200)
+        {
+            std::cerr << "Failed to fetch Deck list from Moxfield : " << response.reason << std::endl;
+            return false;
+        }
 
-    for (const json& deckInfo : decksData["data"])
-    {
-        std::string deckName = deckInfo["name"];
-        std::string deckId = deckInfo["publicId"];
-        decks[deckName] = deckId;
+        json data = json::parse(response.text);
+        totalPages = data["totalPages"]; // update page limit using retrieved pagination
+
+        const json& deckList = data["data"];
+        for (const json& deckInfo : deckList)
+        {
+            std::string deckName = deckInfo["name"];
+            std::string deckId = deckInfo["publicId"];
+            decks[deckName] = deckId;
+        }
     }
 
     return true;
