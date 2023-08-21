@@ -4,8 +4,6 @@
 #include <sstream>
 
 #include "cpr/cpr.h"
-#include "nlohmann/json.hpp"
-using json = nlohmann::json;
 
 #include "DeckWriter.h"
 
@@ -149,23 +147,40 @@ bool FetchDeckFromMoxfield(const std::string& moxfieldDeckID, const std::filesys
     writer.BeginDeck(name, description);
 
     writer.BeginZone("main");
-    for (const auto& [cardName, cardData] : deckData["mainboard"].items())
+    for (const auto& [_, cardData] : deckData["mainboard"].items())
     {
         int quantity = cardData["quantity"];
-        writer.Card(quantity, cardName);
+        writer.Card(quantity, GetCardNameForCockatrice(cardData));
     }
     writer.EndZone();
 
     writer.BeginZone("side");
-    for (const auto& [cardName, cardData] : deckData["sideboard"].items())
+    for (const auto& [_, cardData] : deckData["sideboard"].items())
     {
         int quantity = cardData["quantity"];
-        writer.Card(quantity, cardName);
+        writer.Card(quantity, GetCardNameForCockatrice(cardData));
     }
     writer.EndZone();
 
     writer.EndDeck();
     return true;
+}
+
+std::string GetCardNameForCockatrice(const json& cardData)
+{
+    const json& card = cardData["card"];
+    std::string layout = card["layout"];
+    std::string name = card["name"];
+
+    if (layout == "modal_dfc" 
+    ||  layout == "transform")
+    {
+        const json& card_faces = card["card_faces"];
+        const json& front_face = card_faces[0];
+        name = front_face["name"];
+    }
+
+    return name;
 }
 
 std::string EscapeFilename(std::string_view filename)
